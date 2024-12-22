@@ -1,0 +1,40 @@
+.splitwise-logo {
+    height: 40px !important;
+}
+
+.expense-tabs {
+    width: 860px !important;
+}
+
+.amount-field {
+    width: 80px !important;
+}
+
+.date-field {
+    width: 120px !important;
+}
+
+.disable-border {
+    border: unset !important;
+}
+
+.category-field .dropdown-toggle {
+    width: 120px !important;
+    background-color: white;
+}
+
+.category-field .dropdown-toggle:hover {
+    background-color: white;
+    border: none;
+}
+
+.category-field .dropdown-toggle:hover {
+    width: 120px !important;
+    background-color: white;
+}
+
+.category-field .dropdown-toggle:focus {
+    width: 120px !important;
+    background-color: white;
+}
+  
