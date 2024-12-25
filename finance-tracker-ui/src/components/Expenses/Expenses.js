@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import ExpenseTabs from './ExpenseTabs';
-import SplitwiseExpense from './SplitwiseExpense';
+import ExpenseTabs from './ExpensesNavigation/ExpenseTabs';
+import SplitwiseExpense from './Splitwise/SplitwiseExpense';
 import '../../css/Expenses.css';
 
 const Expenses = () => {
