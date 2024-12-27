@@ -18,7 +18,7 @@ const EditableTable = ({ handleUpdateSplit }) => {
       id: 2,
       checked: false,
       date: "2024-02-15",
-      amount: "$ 50",
+      amount: "$ 50.54",
       description: "Uber ride",
       category: "Transport",
     },
@@ -44,7 +44,7 @@ const EditableTable = ({ handleUpdateSplit }) => {
 
   // Handle app split button (you can extend this functionality)
   const handleAddSplit = (index) => {
-    const amount = data[index].amount;
+    const amount = parseFloat(data[index].amount.replace(/[^0-9.-]+/g, ''));
     const description = data[index].date + " " + data[index].description;
     handleUpdateSplit(amount, description); // Update splitState in Expenses
   };

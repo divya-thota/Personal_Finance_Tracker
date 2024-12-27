@@ -21,20 +21,18 @@
 .category-field .dropdown-toggle {
     width: 120px !important;
     background-color: white;
-}
-
-.category-field .dropdown-toggle:hover {
-    background-color: white;
     border: none;
 }
 
 .category-field .dropdown-toggle:hover {
     width: 120px !important;
-    background-color: white;
+    background-color: lightgray;
+    border: none;
 }
 
-.category-field .dropdown-toggle:focus {
-    width: 120px !important;
-    background-color: white;
+.split-equally {
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
   
