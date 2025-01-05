@@ -1,57 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Button, Dropdown, DropdownButton, Form } from "react-bootstrap";
 import { FaTrashAlt } from "react-icons/fa";
 
-const categories = ["Food", "Transport", "Entertainment", "Bills", "Misc"];
 
-const EditableTable = ({ handleUpdateSplit }) => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      checked: false,
-      date: "2024-01-01",
-      amount: "$ 1000",
-      description: "Grocery shopping akhj adlh afhkj jkhbf",
-      category: "Food",
-    },
-    {
-      id: 2,
-      checked: false,
-      date: "2024-02-15",
-      amount: "$ 50.54",
-      description: "Uber ride",
-      category: "Transport",
-    },
-  ]);
+const EditableTable = ({ handleUpdateSplit, data,  setData, categories, setCategories}) => {
+//  const handleCheckboxChange = (index) => {
+//    const newData = [...data];
+//    newData[index].reviewed = !newData[index].reviewed;
+//    setData(newData);
+//  };
 
-  const handleCheckboxChange = (index) => {
-    const newData = [...data];
-    newData[index].checked = !newData[index].checked;
-    setData(newData);
+  const handleFieldChange = async(e, field, index) => {
+    const newValue = field === "reviewed" ? e.target.checked : (
+        field === "amount"
+          ? parseFloat(e.target.value.replace("$ ", ""))
+          : field === "category"
+          ? parseInt(e)
+          : e.target.value
+      );
+    const expenseId = data[index].id;
+    try {
+      const response = await fetch(`/database/update_expense/${expenseId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", },
+        body: JSON.stringify({ [field]: newValue }), // Dynamic update based on the field
+      });
+      if (response.ok) {
+        const newData = [...data];
+        newData[index][field] = field === "amount"? `$ ${newValue}` : newValue;
+        setData(newData);
+
+      } else {
+        console.error(`Failed to update expense: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error(`Error updating ${field}:`, error);
+    }
   };
 
-  const handleFieldChange = (e, field, index) => {
-    const newData = [...data];
-    newData[index][field] = e.target.value;
-    setData(newData);
-  };
-
-  const handleCategoryChange = (category, index) => {
-    const newData = [...data];
-    newData[index].category = category;
-    setData(newData);
-  };
-
-  // Handle app split button (you can extend this functionality)
   const handleAddSplit = (index) => {
-    const amount = parseFloat(data[index].amount.replace(/[^0-9.-]+/g, ''));
-    const description = data[index].date + " " + data[index].description;
-    handleUpdateSplit(amount, description); // Update splitState in Expenses
+    const amount = parseFloat(data[index].amount.replace(/[^0-9.-]+/g, ""));
+    const description = `${data[index].date} ${data[index].description}`;
+    handleUpdateSplit(amount, description);
   };
 
-  const handleDelete = (index) => {
-    const newData = data.filter((_, i) => i !== index);
-    setData(newData);
+  const handleDelete = async(index) => {
+    const expenseId = data[index].id;
+     // Get the expense ID from the data
+    try {
+      const response = await fetch(`database/delete_expense/${expenseId}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        // Remove the deleted item from the local state
+        const newData = data.filter((_, i) => i !== index);
+        setData(newData);
+      } else {
+        const errorMessage = await response.text();
+        console.error(`Failed to delete expense: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+    }
   };
 
   return (
@@ -74,47 +84,50 @@ const EditableTable = ({ handleUpdateSplit }) => {
               <td>
                 <input
                   type="checkbox"
-                  checked={row.checked}
-                  onChange={() => handleCheckboxChange(index)}
+                  checked={row.reviewed}
+                  onChange={(e) => handleFieldChange(e, "reviewed", index)}
                 />
               </td>
               <td>
                 <Form.Control
                   type="date"
-                  value={row.date}
-                  onChange={(e) => handleFieldChange(e, "date", index)}
+                  defaultValue={row.date}
+                  onBlur={(e) => handleFieldChange(e, "date", index)}
                   className="form-control-sm date-field"
                 />
               </td>
               <td>
                 <Form.Control
                   type="text"
-                  value={row.amount}
-                  onChange={(e) => handleFieldChange(e, "amount", index)}
+                  defaultValue={row.amount}
+                  onBlur={(e) => handleFieldChange(e, "amount", index)}
                   className="form-control-sm amount-field disable-border"
                 />
               </td>
               <td>
                 <Form.Control
                   type="text"
-                  value={row.description}
-                  onChange={(e) => handleFieldChange(e, "description", index)}
+                  defaultValue={row.description}
+                  onBlur={(e) => handleFieldChange(e, "description", index)}
                   className="form-control-sm disable-border"
                 />
               </td>
               <td>
                 <DropdownButton
                   variant="light"
-                  title={row.category}
-                  onSelect={(selectedCategory) =>
-                    handleCategoryChange(selectedCategory, index)
+                  title={
+                    categories.find((category) => category.key === row.category)
+                      ?.value || "Select Category"
+                  }
+                  onSelect={(selectedCategoryId) =>
+                    handleFieldChange(selectedCategoryId,"category", index)
                   }
                   size="sm"
                   className="category-field"
                 >
-                  {categories.map((category, idx) => (
-                    <Dropdown.Item key={idx} eventKey={category}>
-                      {category}
+                  {categories.map((category) => (
+                    <Dropdown.Item key={category.key} eventKey={category.key}>
+                      {category.value}
                     </Dropdown.Item>
                   ))}
                 </DropdownButton>
