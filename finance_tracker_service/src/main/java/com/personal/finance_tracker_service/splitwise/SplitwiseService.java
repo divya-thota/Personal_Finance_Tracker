@@ -142,8 +142,9 @@ public class SplitwiseService {
     }
 	
 	private void splitEquallyParticipants(JsonNode participantList, Map<String, Object> requestBody, double amount, int groupId) {
-		double splitAmount = amount / (participantList.size() + 1);
+		double splitAmount = Math.ceil(amount / (participantList.size() + 1));
 		int index = 0;
+		double totalCost = 0;
 
 		log.info("Splitting amount equally for participants: {}", String.valueOf(splitAmount));
 		for (JsonNode userNode : participantList) {
@@ -152,16 +153,22 @@ public class SplitwiseService {
 		    requestBody.put("users__" + index + "__owed_share", String.valueOf(splitAmount));
 		    requestBody.put("users__" + index + "__paid_share", "0");
 		    index++;
+		    totalCost+=splitAmount;
 		}
 	    requestBody.put("users__" + index + "__user_id", currentUserId);
 	    requestBody.put("users__" + index + "__owed_share", String.valueOf(splitAmount));
 	    requestBody.put("users__" + index + "__paid_share", String.valueOf(amount));
+	    totalCost+=splitAmount;
+	    if(Math.abs(totalCost - amount) <= 0.01) {
+	    	requestBody.put("cost", String.valueOf(totalCost));
+	    }
     }
 	
 	private void splitEqually(JsonNode checkedList, Map<String, Object> requestBody, double amount) {
-		double splitAmount = amount / checkedList.size();
+		double splitAmount = Math.ceil(amount / checkedList.size());
 		boolean containsCurrentUser = false;
 		int index = 0;
+		double totalCost = 0;
 
 		log.info("Splitting amount equally: {}", String.valueOf(splitAmount));
 		for (JsonNode userNode : checkedList) {
@@ -174,6 +181,7 @@ public class SplitwiseService {
 
 		    containsCurrentUser |= isCurrentUser; // Mark true if currentUserId is found
 		    index++;
+		    totalCost+=splitAmount;
 		}
 
 		// Add the current user if not in the list
@@ -182,17 +190,23 @@ public class SplitwiseService {
 		    requestBody.put("users__" + index + "__owed_share", "0.0");
 		    requestBody.put("users__" + index + "__paid_share", String.valueOf(amount));
 		}
+		 if(Math.abs(totalCost - amount) <= 0.01) {
+	    	requestBody.put("cost", String.valueOf(totalCost));
+		 }
     }
 
 	private void splitByShares(JsonNode shares, Map<String, Object> requestBody, double amount) {
 		int index = 0;
+		double totalCost = 0;
 		log.info("Splitting by shares with amount: {}", amount);
 		for (JsonNode userNode: shares) {
             requestBody.put("users__" + index + "__user_id", userNode.path("id").asInt());
             requestBody.put("users__" + index + "__owed_share", userNode.path("amount"));
             requestBody.put("users__" + index + "__paid_share", userNode.path("id").asInt() == currentUserId ? String.valueOf(amount) : "0");
             index++;
+            totalCost+=userNode.path("amount").asDouble();
         }
+		requestBody.put("cost", String.valueOf(totalCost));
     }
 	
 	private void handleCustomSplit(JsonNode expenseNode, Map<String, Object> requestBody, double amount) {
