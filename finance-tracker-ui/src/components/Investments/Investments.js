@@ -1,11 +1,16 @@
 
 import React from 'react';
+import ViewTable from '../ViewTable/ViewTable';
 
-const Investments = () => {
+const Investments = ({filteredAllInvestmentsData}) => {
   return (
-    <div>
-      <h2>Investments Content</h2>
-      <p>Welcome to the Investments section!</p>
+    <div className="container">
+      <div className="row">
+        <div className="card mt-3">
+          <h5 className="text-center">Investments</h5>
+          <ViewTable data={filteredAllInvestmentsData}/>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,55 +1,37 @@
 import React, { useState, useEffect } from "react";
 import EditableTable from '../EditableTable';
+import ViewTable from '../../ViewTable/ViewTable';
+import { fetchAllExpenses, fetchUnreviewedExpenses } from '../../../controllers/Expenses';
 
-const TabContent = ({ activeTab, filter, handleUpdateSplit }) => {
-  const [data, setData] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-
-  const fetchCategories = async () => {
-    const response = await fetch("/database/categories");
-    const data = await response.json();
-    return data.map((category) => ({
-      key: category.category_id,
-      value: category.name,
-    }));
-  };
-
-  const fetchExpenses = async () => {
-    const response = await fetch("/database/expenses");
-    const data = await response.json();
-    return data?.map((expense) => ({
-      id: expense.expense_id,
-      reviewed: expense.reviewed,
-      date: expense.expense_date,
-      amount: `$ ${expense.amount}`,
-      description: expense.description,
-      category: expense.category_id?.category_id || null,
-    }));
-  };
+const TabContent = ({ activeTab,
+  handleUpdateSplit,
+  expenseCategories,
+  setExpenseCategories,
+  filteredAllExpensesData,
+  filteredUnreviewedExpensesData,
+  setAllExpensesData,
+  setUnreviewedExpensesData,
+  filteredSplitwiseExpensesData
+   }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const categoriesData = await fetchCategories();
-      const expensesData = await fetchExpenses();
-      setCategories(categoriesData);
-      setData(expensesData);
+      const expensesData = await fetchAllExpenses();
+      const unreviewedExpensesData = await fetchUnreviewedExpenses();
+      setAllExpensesData(expensesData);
+      setUnreviewedExpensesData(unreviewedExpensesData);
     };
     loadData();
-  }, []);
-
-  // Update filtered data based on active tab
-  useEffect(() => {
-    if (activeTab === "UnreviewedExpenses") {
-      setFilteredData(data.filter((expense) => !expense.reviewed));
-    } else {
-      setFilteredData(data);
-    }
-  }, [activeTab, data]);
+  }, [activeTab]);
 
   // Handle record updates
   const handleUpdateData = (updatedExpense) => {
-    setData((prevData) =>
+    setAllExpensesData((prevData) =>
+      prevData.map((expense) =>
+        expense.id === updatedExpense.id ? updatedExpense : expense
+      )
+    );
+    setUnreviewedExpensesData((prevData) =>
       prevData.map((expense) =>
         expense.id === updatedExpense.id ? updatedExpense : expense
       )
@@ -61,10 +43,10 @@ const TabContent = ({ activeTab, filter, handleUpdateSplit }) => {
       return (
         <EditableTable
           handleUpdateSplit={handleUpdateSplit}
-          data={data}
-          setData={setData}
-          categories={categories}
-          setCategories={setCategories}
+          data={filteredAllExpensesData}
+          setData={setAllExpensesData}
+          categories={expenseCategories}
+          setCategories={setExpenseCategories}
           handleUpdateData={handleUpdateData} // Pass the handler for updates
         />
       );
@@ -72,17 +54,17 @@ const TabContent = ({ activeTab, filter, handleUpdateSplit }) => {
       return (
         <EditableTable
           handleUpdateSplit={handleUpdateSplit}
-          data={filteredData}
-          setData={setData}
-          categories={categories}
-          setCategories={setCategories}
+          data={filteredUnreviewedExpensesData}
+          setData={setUnreviewedExpensesData}
+          categories={expenseCategories}
+          setCategories={setExpenseCategories}
           handleUpdateData={handleUpdateData} // Pass the handler for updates
         />
       );
     case "SplitwiseExpenses":
-      return <div>Showing {filter} in Splitwise Expenses</div>;
+      return <ViewTable data={filteredSplitwiseExpensesData} />;
     default:
-      return <div>Showing {filter} in All Expenses</div>;
+      return <div>Showing All Expenses</div>;
   }
 };
 

@@ -1,0 +1,10 @@
+.viewTable {
+  font-size: 14px;
+}
+
+.viewTable td {
+  max-width: 0px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

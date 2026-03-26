@@ -1,22 +1,31 @@
 import React, { useState } from "react";
 import TabNavigation from "./TabNavigation";
-import FilterDropdown from "./FilterDropdown";
 import TabContent from "./TabContent";
-import { Button } from "react-bootstrap";
 
-const ExpenseTabs = ({ handleUpdateSplit }) => {
+const ExpenseTabs = ({ handleUpdateSplit,
+                       expenseCategories,
+                       setExpenseCategories,
+                       filteredAllExpensesData,
+                       filteredUnreviewedExpensesData,
+                       setAllExpensesData,
+                       setUnreviewedExpensesData,
+                       filteredSplitwiseExpensesData}) => {
   const [activeTab, setActiveTab] = useState("AllExpenses");
-  const [filter, setFilter] = useState("All Transactions");
 
   return (
     <div>
       <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-      <FilterDropdown filter={filter} setFilter={setFilter} activeTab={activeTab}/>
       <div className="tab-content mt-3">
         <TabContent
-          activeTab={activeTab}
-          filter={filter}
           handleUpdateSplit={handleUpdateSplit}
+          activeTab={activeTab}
+          expenseCategories={expenseCategories}
+          setExpenseCategories={setExpenseCategories}
+          filteredAllExpensesData={filteredAllExpensesData}
+          filteredUnreviewedExpensesData={filteredUnreviewedExpensesData}
+          setAllExpensesData={setAllExpensesData}
+          setUnreviewedExpensesData={setUnreviewedExpensesData}
+          filteredSplitwiseExpensesData={filteredSplitwiseExpensesData}
         />
       </div>
     </div>

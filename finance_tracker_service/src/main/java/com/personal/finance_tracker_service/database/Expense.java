@@ -11,6 +11,7 @@ import java.sql.Date;
 @Data
 public class Expense {
 	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
     private String expense_id;
 
     @Column(name = "expense_date")
@@ -22,10 +23,20 @@ public class Expense {
     @Column(name = "description")
     private String description;
     
+    @Column(name = "source")
+    private String source;
+    
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category_id;
     
     @Column(name = "reviewed", columnDefinition="tinyint(1) default 0")
     private boolean reviewed;
+
+    @Column(name = "is_deleted", columnDefinition="tinyint(1) default 0")
+    private boolean is_deleted;
+    
+    @Column(name = "created_date")
+    private Date created_date;
+    
 }

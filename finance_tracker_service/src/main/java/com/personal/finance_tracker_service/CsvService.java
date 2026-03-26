@@ -89,7 +89,7 @@ public class CsvService {
             try {
             	if (fileName.startsWith("stmt")) {
             		processBofaCsvFile(csvFile);
-            	} else if (fileName.startsWith("Discover"))
+            	} else if (fileName.startsWith("Discover") || fileName.startsWith("DFS"))
             		processDiscoverCsvFile(csvFile);
             	else if (fileName.startsWith("activity"))
             		processAmexCsvFile(csvFile);
@@ -128,12 +128,14 @@ public class CsvService {
 	                databaseService.createExpense(
 	                		Date.valueOf(localDate),
 	                		nextLine[1],
-	                		Double.valueOf(nextLine[2].replace("-","").replace(",", "")));
+	                		Double.valueOf(nextLine[2].replace("-","").replace(",", "")),
+	                		"bofa");
                 else
                 	databaseService.createIncome(
 	                		Date.valueOf(localDate),
 	                		nextLine[1],
-	                		Double.valueOf(nextLine[2].replace(",", "")));
+	                		Double.valueOf(nextLine[2].replace(",", "")),
+	                		"bofa");
             }
         } catch (Exception e) {
             System.err.println("Error reading CSV file: " + csvFile.getName());
@@ -150,7 +152,7 @@ public class CsvService {
             while ((nextLine = reader.readNext()) != null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
                 LocalDate localDate = LocalDate.parse(nextLine[0], formatter);
-                databaseService.createExpense(Date.valueOf(localDate), nextLine[2], Double.valueOf(nextLine[3]));
+                databaseService.createExpense(Date.valueOf(localDate), nextLine[2], Double.valueOf(nextLine[3]),"discover");
             }
         } catch (IOException e) {
             System.err.println("Error reading CSV file: " + csvFile.getName());
@@ -170,7 +172,7 @@ public class CsvService {
             while ((nextLine = reader.readNext()) != null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
                 LocalDate localDate = LocalDate.parse(nextLine[0], formatter);
-                databaseService.createExpense(Date.valueOf(localDate), nextLine[1], Double.valueOf(nextLine[2]));
+                databaseService.createExpense(Date.valueOf(localDate), nextLine[1], Double.valueOf(nextLine[2]), "amex");
             }
         } catch (IOException e) {
             System.err.println("Error reading CSV file: " + csvFile.getName());
@@ -190,9 +192,9 @@ public class CsvService {
             while ((nextLine = reader.readNext()) != null) {
             	Double amount = Double.valueOf(nextLine[3]);
                 if (amount < 0)
-                	databaseService.createExpense(Date.valueOf(nextLine[0]), nextLine[1], Math.abs(amount));
+                	databaseService.createExpense(Date.valueOf(nextLine[0]), nextLine[1], Math.abs(amount),"sofi");
                 else
-                	databaseService.createIncome(Date.valueOf(nextLine[0]), nextLine[1], amount);
+                	databaseService.createIncome(Date.valueOf(nextLine[0]), nextLine[1], amount,"sofi");
                 // Process the data here (for example, save to database, etc.)
             }
         } catch (IOException e) {

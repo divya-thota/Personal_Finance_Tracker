@@ -30,12 +30,16 @@ public class SplitwiseController {
     }
 
     @GetMapping("/expenses")
-    public String getExpenses() {
-        return splitwiseService.getSplitwiseData("get_expenses");
+    public List<Expense> getExpenses() {
+        return splitwiseService.parseAllExpenses(
+        		splitwiseService.getSplitwiseData("get_expenses"),
+        		splitwiseService.getSplitwiseData("get_friends")
+        );
     }
 
     @PostMapping("/create_expense")
     public String createExpense(@RequestBody String expenseBody) {
         return splitwiseService.createExpense(expenseBody);
     }
+
 }

@@ -10,43 +10,37 @@ const SplitwiseExpense = ({ splitState }) => {
   const [description, setDescription] = useState(splitState.description);
   const [participants, setParticipants] = useState([]);
   const [activeSplitTab, setActiveSplitTab] = useState("SplitEqually");
-  const [isEquallyClicked, setIsEquallyClicked] = useState(false); // State to track visibility
+  const [isEquallyClicked, setIsEquallyClicked] = useState(false);
   const [checkedList, setCheckedList] = useState([]);
   const [shareAmount, setShareAmount] = useState([]);
 
   const handleEquallyClick = () => {
-    setIsEquallyClicked((prev) => !prev); // Toggle the state
+    setIsEquallyClicked((prev) => !prev);
   };
 
   const handleCheckboxChange = (id, isChecked) => {
     if (isChecked) {
-      setCheckedList(prevList => {
-        const updatedList = [...prevList.filter(item => item.id !== id), { id, isChecked }];
+      setCheckedList((prevList) => {
+        const updatedList = [...prevList.filter((item) => item.id !== id), { id, isChecked }];
         return updatedList;
       });
     } else {
-      setCheckedList(prevList => {
-        const updatedList = prevList.filter(item => item.id !== id);
-        return updatedList;
-      });
+      setCheckedList((prevList) => prevList.filter((item) => item.id !== id));
     }
   };
 
   const handleAmountChange = (id, amount) => {
-    setShareAmount(prevShareAmount => {
-      const updatedShareAmount = prevShareAmount.map(item =>
+    setShareAmount((prevShareAmount) => {
+      const updatedShareAmount = prevShareAmount.map((item) =>
         item.id === id ? { ...item, amount } : item
       );
-      //Check if an item with the given ID exists in updatedShareAmount
-      if (!updatedShareAmount.some(item => item.id === id)) {
-        //If there is no item with the given ID, create one
-        updatedShareAmount.push({id, amount})
+      if (!updatedShareAmount.some((item) => item.id === id)) {
+        updatedShareAmount.push({ id, amount });
       }
       return updatedShareAmount;
     });
   };
 
-  // To populate the input fields
   useEffect(() => {
     setAmount(splitState.amount);
     setDescription(splitState.description);
@@ -68,12 +62,13 @@ const SplitwiseExpense = ({ splitState }) => {
           isEquallyClicked,
           activeSplitTab,
           checkedList,
-          shareAmount
+          shareAmount,
         }),
       });
 
       if (response.ok) {
         alert("Expense added successfully!");
+        // Clear fields on success
         setAmount("");
         setDescription("");
         setParticipants([]);
@@ -83,10 +78,12 @@ const SplitwiseExpense = ({ splitState }) => {
         setShareAmount([]);
       } else {
         const errorData = await response.json();
-        alert(`Error adding expense: ${errorData.message}`);
+        alert(`Error adding expense: ${errorData.message}. Please try again.`);
+        // Do not clear fields
       }
     } catch (error) {
       console.error("Error adding expense:", error);
+      alert("An unexpected error occurred. Please try again.");
     }
   };
 
@@ -99,7 +96,7 @@ const SplitwiseExpense = ({ splitState }) => {
       />
       <p className="mt-3">Add an Expense</p>
       <Form onSubmit={handleSubmit}>
-        <AddParticipants setParticipants={setParticipants} participants={participants}/>
+        <AddParticipants setParticipants={setParticipants} participants={participants} />
         <Form.Group controlId="description">
           <Form.Control
             type="text"
@@ -121,8 +118,11 @@ const SplitwiseExpense = ({ splitState }) => {
           />
         </Form.Group>
 
-        <p className="m-2 split-equally">Paid by you and split &nbsp;
-        <Button variant="outline-secondary" size="sm" onClick={handleEquallyClick}>equally</Button>
+        <p className="m-2 split-equally">
+          Paid by you and split &nbsp;
+          <Button variant="outline-secondary" size="sm" onClick={handleEquallyClick}>
+            equally
+          </Button>
         </p>
         {isEquallyClicked && (
           <>
@@ -130,10 +130,12 @@ const SplitwiseExpense = ({ splitState }) => {
               activeSplitTab={activeSplitTab}
               setActiveSplitTab={setActiveSplitTab}
             />
-            <SplitTabContent activeSplitTab={activeSplitTab}
+            <SplitTabContent
+              activeSplitTab={activeSplitTab}
               participants={participants}
               handleCheckboxChange={handleCheckboxChange}
-              handleAmountChange={handleAmountChange}/>
+              handleAmountChange={handleAmountChange}
+            />
           </>
         )}
         <Button variant="dark" type="submit" className="m-2 mb-2">

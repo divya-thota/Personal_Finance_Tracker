@@ -4,11 +4,6 @@ import { FaTrashAlt } from "react-icons/fa";
 
 
 const EditableTable = ({ handleUpdateSplit, data,  setData, categories, setCategories}) => {
-//  const handleCheckboxChange = (index) => {
-//    const newData = [...data];
-//    newData[index].reviewed = !newData[index].reviewed;
-//    setData(newData);
-//  };
 
   const handleFieldChange = async(e, field, index) => {
     const newValue = field === "reviewed" ? e.target.checked : (
@@ -29,7 +24,6 @@ const EditableTable = ({ handleUpdateSplit, data,  setData, categories, setCateg
         const newData = [...data];
         newData[index][field] = field === "amount"? `$ ${newValue}` : newValue;
         setData(newData);
-
       } else {
         console.error(`Failed to update expense: ${response.statusText}`);
       }
@@ -48,8 +42,10 @@ const EditableTable = ({ handleUpdateSplit, data,  setData, categories, setCateg
     const expenseId = data[index].id;
      // Get the expense ID from the data
     try {
-      const response = await fetch(`database/delete_expense/${expenseId}`, {
-        method: "DELETE",
+      const response = await fetch(`database/update_expense/${expenseId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", },
+        body: JSON.stringify({ ["is_deleted"]: true }),
       });
       if (response.ok) {
         // Remove the deleted item from the local state

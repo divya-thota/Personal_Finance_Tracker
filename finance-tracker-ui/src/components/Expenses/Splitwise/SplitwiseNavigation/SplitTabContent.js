@@ -16,6 +16,7 @@ const SplitTabContent = ({ activeSplitTab, participants, handleCheckboxChange, h
       }, []).map(p => [p.id, p])
     ).values()]
   : participants.length > 0 ? [...participants, {id: 22705915, name: 'Divya Thota', type: 'friend'}]: [];
+//    : participants.length > 0 ? [...participants, {id: 50530263, name: 'Amrita', type: 'friend'}]: [];
 
   switch (activeSplitTab) {
     case "SplitEqually":
